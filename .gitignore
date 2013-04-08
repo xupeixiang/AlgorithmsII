@@ -11,6 +11,6 @@
 *.ear
 
 # other things#
-.zip
-.txt
-.rar
+*.zip
+*.txt
+*.rar
