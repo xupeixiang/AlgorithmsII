@@ -1,0 +1,16 @@
+*.class
+
+# Eclipse stuffs#
+.classpath
+.project
+*.eclipse.*
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# other things#
+.zip
+.txt
+.rar
