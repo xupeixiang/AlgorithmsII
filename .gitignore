@@ -4,6 +4,7 @@
 .classpath
 .project
 *.eclipse.*
+bin/
 
 # Package Files #
 *.jar
