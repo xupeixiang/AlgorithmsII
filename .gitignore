@@ -5,6 +5,7 @@
 .project
 *.eclipse.*
 bin/
+src/
 
 # Package Files #
 *.jar
