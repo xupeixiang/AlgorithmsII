@@ -54,7 +54,7 @@ public class SeamCarver {
 	private void calEnergy(){
 		for(int i = 0;i < pic.width();i++){
 			for(int j = 0;j < pic.height();j++){
-				energys[i][j] = energy(i, i);
+				energys[i][j] = energy(i, j);
 			}
 		}
 	}
