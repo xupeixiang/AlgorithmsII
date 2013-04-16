@@ -37,10 +37,10 @@ public class SeamCarver {
 	
 	// energy of pixel at column x and row y
 	public  double energy(int x, int y){
-		if(x < 0 || x > width() || y < 0 || y > height()){
+		if(x < 0 || x >= width() || y < 0 || y >= height()){
 			throw new IndexOutOfBoundsException();
 		}
-		if(x == 0 || x == width() || y == 0 || y == height()){
+		if(x == 0 || x == width() -1 || y == 0 || y == height() - 1){
 			return 195075; //255^2 + 255^2 + 255^2
 		}
 		return diff(pic.get(x - 1, y),pic.get(x + 1, y)) + 
@@ -180,7 +180,8 @@ public class SeamCarver {
 		}
 		Picture picNew = new Picture(pic.width(), pic.height() - 1);
 		for(int i = 0;i < picNew.width();i++){
-			if(a[i] < 0 || a[i] >= picNew.height()){
+			// notice that a[i] may be the last one, so here is pic rather than picNew
+			if(a[i] < 0 || a[i] >= pic.height()){
 				throw new IndexOutOfBoundsException();
 			}
 			for(int j = 0;j < picNew.height();j++){
@@ -201,7 +202,7 @@ public class SeamCarver {
 		}
 		Picture picNew = new Picture(pic.width() - 1, pic.height());
 		for(int i = 0;i < picNew.height();i++){
-			if(a[i] < 0 || a[i] >= picNew.width()){
+			if(a[i] < 0 || a[i] >= pic.width()){
 				throw new IndexOutOfBoundsException();
 			}
 			for(int j = 0;j < picNew.width();j++){
