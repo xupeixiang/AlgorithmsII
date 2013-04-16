@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.util.Arrays;
 
 
 public class SeamCarver {
@@ -46,24 +47,172 @@ public class SeamCarver {
 				diff(pic.get(x, y - 1),pic.get(x, y + 1));
 	}
 	
+	// sequence of indices for vertical seam
+	public int[] findVerticalSeam(){
+		// distTo[i][j] = shortest path length to (j,i)
+		double [][] distTo = new double[this.pic.height()][this.pic.width()];
+		// initialize
+		for(double[] distCol:distTo){
+			Arrays.fill(distCol, Double.MAX_VALUE);
+		}
+		Arrays.fill(distTo[1], 0);
+		// last pixel in the shortest path to(j,i),(j-1,i-1) or (j,i-1) or (j+1,i-1)
+		int [][] pathTo = new int[this.pic.height()][this.pic.width()];
+		
+		// not including borders
+		for(int i = 1;i < this.pic.height() - 1;i++){
+			for(int j = 1;j < this.pic.width() - 1;j++){
+				// distance of path through (j,i)
+				double dist = energy(j, i) + distTo[i][j];
+				
+				//update three pixels
+				if(dist < distTo[i+1][j-1]){
+					distTo[i+1][j-1] = dist;
+					pathTo[i+1][j-1] = j;
+				}
+				if(dist < distTo[i+1][j]){
+					distTo[i+1][j] = dist;
+					pathTo[i+1][j] = j;
+				}
+				if(dist < distTo[i+1][j+1]){
+					distTo[i+1][j+1] = dist;
+					pathTo[i+1][j+1] = j;
+				}
+			}
+		}
+		
+		// find the shortest in last row
+		int minIndex = 0;
+		double minDis = Double.MAX_VALUE;
+		for(int i = 0;i < pic.width();i++){
+			if(distTo[pic.height() - 1][i] < minDis){
+				minIndex = i;
+				minDis = distTo[pic.height() - 1][i];
+			}
+		}
+		
+		// vertical seam
+		int seam[] = new int[pic.height()];
+		seam[pic.height() - 1] = minIndex;
+		
+		// find the path according to pathTo array
+		for(int i = pic.height() - 2; i > 0;i--){
+			seam[i] = pathTo[i+1][seam[i+1]];
+		}
+		seam[0] = seam[1];
+		
+		return seam;
+	}
+	
 	// sequence of indices for horizontal seam
 	public int[] findHorizontalSeam(){
 		
+		// distTo[i][j] = shortest path length to (i,j)
+		double [][] distTo = new double[this.pic.width()][this.pic.height()];
+		// initialize
+		for(double[] distCol:distTo){
+			Arrays.fill(distCol, Double.MAX_VALUE);
+		}
+		Arrays.fill(distTo[1], 0);
+		// last pixel in the shortest path to(i,j),(i+1,j-1) or (i+1,j) or (i+1,j+1)
+		int [][] pathTo = new int[this.pic.width()][this.pic.height()];
+				
+		// not including borders
+		for(int i = 1;i < this.pic.width() - 1;i++){
+			for(int j = 1;j < this.pic.height() - 1;j++){
+				// distance of path through (i,j)
+				double dist = energy(i, j) + distTo[i][j];
+						
+				//update three pixels
+				if(dist < distTo[i+1][j-1]){
+					distTo[i+1][j-1] = dist;
+					pathTo[i+1][j-1] = j;
+				}
+						
+				if(dist < distTo[i+1][j]){
+					distTo[i+1][j] = dist;
+					pathTo[i+1][j] = j;
+				}
+				
+				if(dist < distTo[i+1][j+1]){
+					distTo[i+1][j+1] = dist;
+					pathTo[i+1][j+1] = j;
+				}
+			}
+		}
+				
+		// find the shortest in last row
+		int minIndex = 0;
+		double minDis = Double.MAX_VALUE;
+		for(int i = 0;i < pic.height();i++){
+			if(distTo[pic.width() - 1][i] < minDis){
+				minIndex = i;
+				minDis = distTo[pic.width() - 1][i];
+			}
+		}
+				
+		// horizontal seam
+		int seam[] = new int[pic.width()];
+		seam[pic.width() - 1] = minIndex;
+				
+		// find the path according to pathTo array
+		for(int i = pic.width() - 2; i > 0;i--){
+			seam[i] = pathTo[i+1][seam[i+1]];
+		}
+		seam[0] = seam[1];
+				
+		return seam;
 	}
 	
-	// sequence of indices for vertical seam
-	public int[] findVerticalSeam(){
-		
+	private boolean isSeamValid(int[] a){
+		for(int i = 1;i < a.length;i++){
+			if(Math.abs(a[i] - a[i-1]) > 1){
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	// remove horizontal seam from picture	   
 	public void removeHorizontalSeam(int[] a){
-	
+		if(a.length != pic.width() || !isSeamValid(a) || pic.height() <= 1){
+			throw new IllegalArgumentException();
+		}
+		Picture picNew = new Picture(pic.width(), pic.height() - 1);
+		for(int i = 0;i < picNew.width();i++){
+			if(a[i] < 0 || a[i] >= picNew.height()){
+				throw new IndexOutOfBoundsException();
+			}
+			for(int j = 0;j < picNew.height();j++){
+				if(j < a[i]){
+					picNew.set(i, j, pic.get(i, j));
+				}
+				else
+					picNew.set(i, j, pic.get(i, j + 1));
+			}
+		}
+		this.pic = picNew;
 	}
 	
 	// remove vertical seam from picture
 	public void removeVerticalSeam(int[] a){
-		   
+		if(a.length != pic.height() || !isSeamValid(a) || pic.width() <= 1){
+			throw new IllegalArgumentException();
+		}
+		Picture picNew = new Picture(pic.width() - 1, pic.height());
+		for(int i = 0;i < picNew.height();i++){
+			if(a[i] < 0 || a[i] >= picNew.width()){
+				throw new IndexOutOfBoundsException();
+			}
+			for(int j = 0;j < picNew.width();j++){
+				if(j < a[i]){
+					picNew.set(j, i, pic.get(j, i));
+				}
+				else
+					picNew.set(j, i, pic.get(j + 1,i));
+			}
+		}
+		this.pic = picNew;
 	}
 
 }
