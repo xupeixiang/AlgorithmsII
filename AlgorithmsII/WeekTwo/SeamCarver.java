@@ -5,10 +5,13 @@ import java.util.Arrays;
 public class SeamCarver {
 
 	private Picture pic;
+	private double[][] energys;
 	
 	//Tip:The data type may not mutate the Picture argument to the constructor.
 	public SeamCarver(Picture picture){
 		this.pic = new Picture(picture);
+		this.energys = new double[pic.width()][pic.height()];
+		this.calEnergy();
 	}
 	
 	// current picture
@@ -47,6 +50,15 @@ public class SeamCarver {
 				diff(pic.get(x, y - 1),pic.get(x, y + 1));
 	}
 	
+	// calculate all energy of current picture
+	private void calEnergy(){
+		for(int i = 0;i < pic.width();i++){
+			for(int j = 0;j < pic.height();j++){
+				energys[i][j] = energy(i, i);
+			}
+		}
+	}
+	
 	// sequence of indices for vertical seam
 	public int[] findVerticalSeam(){
 		// distTo[i][j] = shortest path length to (j,i)
@@ -63,7 +75,7 @@ public class SeamCarver {
 		for(int i = 1;i < this.pic.height() - 1;i++){
 			for(int j = 1;j < this.pic.width() - 1;j++){
 				// distance of path through (j,i)
-				double dist = energy(j, i) + distTo[i][j];
+				double dist = energys[j][i] + distTo[i][j];
 				
 				//update three pixels
 				if(dist < distTo[i+1][j-1]){
@@ -121,7 +133,7 @@ public class SeamCarver {
 		for(int i = 1;i < this.pic.width() - 1;i++){
 			for(int j = 1;j < this.pic.height() - 1;j++){
 				// distance of path through (i,j)
-				double dist = energy(i, j) + distTo[i][j];
+				double dist = energys[i][j] + distTo[i][j];
 						
 				//update three pixels
 				if(dist < distTo[i+1][j-1]){
@@ -178,7 +190,9 @@ public class SeamCarver {
 		if(a.length != pic.width() || !isSeamValid(a) || pic.height() <= 1){
 			throw new IllegalArgumentException();
 		}
+		// new
 		Picture picNew = new Picture(pic.width(), pic.height() - 1);
+		double[][] energysNew = new double[pic.width()][pic.height() - 1];
 		for(int i = 0;i < picNew.width();i++){
 			// notice that a[i] may be the last one, so here is pic rather than picNew
 			if(a[i] < 0 || a[i] >= pic.height()){
@@ -187,12 +201,29 @@ public class SeamCarver {
 			for(int j = 0;j < picNew.height();j++){
 				if(j < a[i]){
 					picNew.set(i, j, pic.get(i, j));
+					energysNew[i][j] = energys[i][j];
 				}
-				else
+				else{
 					picNew.set(i, j, pic.get(i, j + 1));
+					energysNew[i][j] = energys[i][j + 1];
+				}
 			}
 		}
 		this.pic = picNew;
+		
+		// update energys
+		for(int i = 0;i < picNew.width();i++){
+			int energyChangeOne = a[i] - 1;
+			int energyChangeTwo = a[i];
+			if(energyChangeOne >= 0){
+				energysNew[i][energyChangeOne] = energy(i, energyChangeOne);
+			}
+			if(energyChangeTwo < picNew.height()){
+				energysNew[i][energyChangeTwo] = energy(i, energyChangeTwo);
+			}
+		}
+		
+		this.energys = energysNew;
 	}
 	
 	// remove vertical seam from picture
@@ -201,6 +232,7 @@ public class SeamCarver {
 			throw new IllegalArgumentException();
 		}
 		Picture picNew = new Picture(pic.width() - 1, pic.height());
+		double[][] energysNew = new double[pic.width() - 1][pic.height()];
 		for(int i = 0;i < picNew.height();i++){
 			if(a[i] < 0 || a[i] >= pic.width()){
 				throw new IndexOutOfBoundsException();
@@ -208,12 +240,28 @@ public class SeamCarver {
 			for(int j = 0;j < picNew.width();j++){
 				if(j < a[i]){
 					picNew.set(j, i, pic.get(j, i));
+					energysNew[j][i] = energys[j][i];
 				}
-				else
+				else{
 					picNew.set(j, i, pic.get(j + 1,i));
+					energysNew[j][i] = energys[j + 1][i];
+				}
+					
 			}
 		}
 		this.pic = picNew;
+		// update energys
+		for(int i = 0;i < picNew.height();i++){
+			int energyChangeOne = a[i] - 1;
+			int energyChangeTwo = a[i];
+			if(energyChangeOne >= 0){
+				energysNew[energyChangeOne][i] = energy(energyChangeOne,i);
+			}
+			if(energyChangeTwo < picNew.width()){
+				energysNew[energyChangeTwo][i] = energy(energyChangeTwo,i);
+		    }
+		}
+		this.energys = energysNew;
 	}
 
 }
