@@ -1,6 +1,3 @@
-import java.util.Arrays;
-import java.util.HashMap;
-
 /************************************************************
  * 
  * Copyright (c) 2013, Peixiang Xu(peixiangxu@gmail.com)
@@ -10,6 +7,10 @@ import java.util.HashMap;
  * License as published by the Free Software Foundation.
  * 
  ************************************************************/
+import java.util.Arrays;
+import java.util.HashMap;
+
+
 public class CircularSuffixArray {
     
     int index[];
