@@ -12,23 +12,34 @@ import java.util.Arrays;
 public class BurrowsWheeler {
     // apply Burrows-Wheeler encoding, reading from standard input and writing to standard output
     public static void encode(){
-        String text = StdIn.readLine();
-        CircularSuffixArray suffixs = new CircularSuffixArray(text);
-        int i = 0;
-        for(;i < text.length();i++){
+        StringBuffer text = new StringBuffer();
+        while(!BinaryStdIn.isEmpty()){
+            text.append(BinaryStdIn.readChar());
+        }  
+        CircularSuffixArray suffixs = new CircularSuffixArray(text.toString());
+        int start = -1;
+        for(int i = 0;i < text.length();i++){
             if(suffixs.index(i) == 0){
+                start = i;
                 break;
             }
         }
-        BinaryStdOut.write(i);
-        for(char c:suffixs.tail().toCharArray()){
-            BinaryStdOut.write(c);
+        BinaryStdOut.write(start);
+        for(int i = 0;i < text.length();i++){
+            int index = suffixs.index(i);
+            if(index > 0){
+                BinaryStdOut.write(text.charAt(index - 1));
+            }
+            else
+                BinaryStdOut.write(text.charAt(text.length() - 1));
         }
         BinaryStdOut.flush();
     }
 
     // apply Burrows-Wheeler decoding, reading from standard input and writing to standard output
     public static void decode(){
+        if(BinaryStdIn.isEmpty())
+            return;
         int originalPos = BinaryStdIn.readInt();
         StringBuffer tail = new StringBuffer();
         while(!BinaryStdIn.isEmpty()){
@@ -52,16 +63,11 @@ public class BurrowsWheeler {
             }
         }
         
-        StringBuffer text = new StringBuffer(tail.length());
         int pos = originalPos;
-        text.append(headChars[pos]);
+        BinaryStdOut.write(headChars[pos]);
         for(int i = 0; i < tail.length() - 1; i++){
             pos = next[pos];
-            text.append(headChars[pos]);
-        }
-        
-        for(char c:text.toString().toCharArray()){
-            BinaryStdOut.write(c);
+            BinaryStdOut.write(headChars[pos]);
         }
         BinaryStdOut.flush();
     }
