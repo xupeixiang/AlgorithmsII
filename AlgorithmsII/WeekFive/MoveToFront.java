@@ -25,7 +25,6 @@ public class MoveToFront {
                 char temp = seqs[i];
                 if(seqs[i] == c){
                     BinaryStdOut.write(i, 8);
-                    BinaryStdOut.flush();
                     seqs[i] = replaceChar;
                     break;
                 }else{
@@ -34,7 +33,8 @@ public class MoveToFront {
                 }
             }   
             seqs[0] = c;
-        }     
+        } 
+        BinaryStdOut.flush();
     }
 
     // apply move-to-front decoding, reading from standard input and writing to standard output

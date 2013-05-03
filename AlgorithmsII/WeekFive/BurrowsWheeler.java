@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 /************************************************************
  * 
  * Copyright (c) 2013, Peixiang Xu(peixiangxu@gmail.com)
@@ -27,7 +29,41 @@ public class BurrowsWheeler {
 
     // apply Burrows-Wheeler decoding, reading from standard input and writing to standard output
     public static void decode(){
+        int originalPos = BinaryStdIn.readInt();
+        StringBuffer tail = new StringBuffer();
+        while(!BinaryStdIn.isEmpty()){
+            tail.append(BinaryStdIn.readChar());
+        }
+        char[] headChars = tail.toString().toCharArray();
+        Arrays.sort(headChars);
         
+        // construct next 
+        int[] next = new int[headChars.length];
+        boolean[] find = new boolean[headChars.length];
+        Arrays.fill(find, false);
+        for(int i = 0; i < headChars.length; i++){
+            char headChar = headChars[i];
+            for(int j = 0;j < headChars.length;j++){
+                if(tail.charAt(j) == headChar && !find[j]){
+                    next[i] = j;
+                    find[j] = true;
+                    break;
+                }
+            }
+        }
+        
+        StringBuffer text = new StringBuffer(tail.length());
+        int pos = originalPos;
+        text.append(headChars[pos]);
+        for(int i = 0; i < tail.length() - 1; i++){
+            pos = next[pos];
+            text.append(headChars[pos]);
+        }
+        
+        for(char c:text.toString().toCharArray()){
+            BinaryStdOut.write(c);
+        }
+        BinaryStdOut.flush();
     }
 
     // if args[0] is '-', apply Burrows-Wheeler encoding
