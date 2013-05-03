@@ -1,0 +1,40 @@
+import java.util.Arrays;
+import java.util.HashMap;
+
+/************************************************************
+ * 
+ * Copyright (c) 2013, Peixiang Xu(peixiangxu@gmail.com)
+ * 
+ * This program is free software: you can redistribute it 
+ * and/or modify it under the terms of the GNU General Public 
+ * License as published by the Free Software Foundation.
+ * 
+ ************************************************************/
+public class CircularSuffixArray {
+    
+    int index[];
+    // circular suffix array of s
+    public CircularSuffixArray(String s){
+        index = new int[s.length()];
+        HashMap<String, Integer> str2index = new HashMap<String, Integer>(); 
+        for(int i = 0;i < s.length(); i++){
+            str2index.put(s.substring(i) + s.substring(0,i), i);
+        }
+        String[] sorted =  (String[])str2index.keySet().toArray();
+        Arrays.sort(sorted);
+        
+        for(int i = 0; i < index.length; i++){
+            index[i] = str2index.get(sorted[i]);
+        }
+    }
+    
+    // length of s
+    public int length(){
+        return index.length;
+    }
+    
+    // returns index of ith sorted suffix
+    public int index(int i){
+        return index[i];
+    }
+}
