@@ -7,7 +7,6 @@
  * License as published by the Free Software Foundation.
  * 
  ************************************************************/
-import java.util.ArrayList;
 import java.util.Arrays;
 
 
@@ -17,28 +16,16 @@ public class CircularSuffixArray {
     // circular suffix array of s
     public CircularSuffixArray(String s){
         index = new int[s.length()];
-        int current = 0;
-        //double s for sub and locate
-        String doubleS = s + s;
-        
-        //sort by group
-        for(int i = 0; i < 256; i++){
-            ArrayList<String> groupStrings  = new ArrayList<String>();
-            char groupChar = (char)i;
-            int begin = 0;
-            int found = s.indexOf(groupChar, begin);
-            while(found >= 0){
-                groupStrings.add(doubleS.substring(found,s.length() + found));
-                found = s.indexOf(groupChar, found + 1);
-            }
-            if(groupStrings.size() > 0){
-                String[] sorted = groupStrings.toArray(new String[0]);
-                Arrays.sort(sorted);
-                for(String groupString:sorted){
-                    index[current++] = doubleS.indexOf(groupString);
-                }
-            }
+        char[] chars = s.toCharArray();
+        RotateString[] rotateStrings = new RotateString[s.length()];
+        for(int i = 0;i < s.length();i++){
+            rotateStrings[i] = new RotateString(chars, i);
         }
+        Arrays.sort(rotateStrings);
+        for(int j = 0;j < s.length(); j++){
+            index[j] = rotateStrings[j].getRotate();
+        }
+            
     }
     
     // length of s
@@ -49,5 +36,48 @@ public class CircularSuffixArray {
     // returns index of ith sorted suffix
     public int index(int i){
         return index[i];
+    }
+    
+    private class RotateString implements Comparable<RotateString>{
+        private char[] originalString;
+        private int rotate;
+        
+        public RotateString(char[] originalString,int rotate){
+            this.originalString = originalString;
+            this.rotate = rotate;
+        }
+        
+        public int getRotate(){
+            return this.rotate;
+        }
+        
+        @Override
+        public int compareTo(RotateString another){
+            int thisRotate = rotate;
+            int anotherRotate = another.getRotate();
+            while(originalString[thisRotate] == originalString[anotherRotate]){
+                if(thisRotate == originalString.length - 1){
+                    thisRotate = 0;
+                }else{
+                    thisRotate ++;
+                }
+                if(anotherRotate == originalString.length - 1){
+                    anotherRotate = 0;
+                }else{
+                    anotherRotate ++;
+                }
+                // all equals
+                if(thisRotate == rotate){
+                    return 0;
+                }
+            }
+            if(originalString[thisRotate] < originalString[anotherRotate]){
+                return -1;
+            }
+            else{
+                return 1;
+            }
+            
+        }
     }
 }
