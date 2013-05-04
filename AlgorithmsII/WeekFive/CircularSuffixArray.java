@@ -7,8 +7,8 @@
  * License as published by the Free Software Foundation.
  * 
  ************************************************************/
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 
 
 public class CircularSuffixArray {
@@ -17,15 +17,27 @@ public class CircularSuffixArray {
     // circular suffix array of s
     public CircularSuffixArray(String s){
         index = new int[s.length()];
-        HashMap<String, Integer> str2index = new HashMap<String, Integer>(); 
-        for(int i = 0;i < s.length(); i++){
-            str2index.put(s.substring(i) + s.substring(0,i), i);
-        }
-        String[] sorted =  (String[])str2index.keySet().toArray(new String[s.length()]);
-        Arrays.sort(sorted);
+        int current = 0;
+        //double s for sub and locate
+        String doubleS = s + s;
         
-        for(int i = 0; i < index.length; i++){
-            index[i] = str2index.get(sorted[i]);
+        //sort by group
+        for(int i = 0; i < 256; i++){
+            ArrayList<String> groupStrings  = new ArrayList<String>();
+            char groupChar = (char)i;
+            int begin = 0;
+            int found = s.indexOf(groupChar, begin);
+            while(found >= 0){
+                groupStrings.add(doubleS.substring(found,s.length() + found));
+                found = s.indexOf(groupChar, found + 1);
+            }
+            if(groupStrings.size() > 0){
+                String[] sorted = groupStrings.toArray(new String[0]);
+                Arrays.sort(sorted);
+                for(String groupString:sorted){
+                    index[current++] = doubleS.indexOf(groupString);
+                }
+            }
         }
     }
     
