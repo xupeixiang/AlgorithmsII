@@ -50,15 +50,15 @@ public class BurrowsWheeler {
         
         // construct next 
         int[] next = new int[headChars.length];
-        boolean[] find = new boolean[headChars.length];
-        Arrays.fill(find, false);
+        int[] lastFind = new int[256];
+        Arrays.fill(lastFind, -1);
         for(int i = 0; i < headChars.length; i++){
             char headChar = headChars[i];
-            for(int j = 0;j < headChars.length;j++){
-                if(tail.charAt(j) == headChar && !find[j]){
-                    next[i] = j;
-                    find[j] = true;
-                    break;
+            for(int j = lastFind[(int)headChar] + 1;j < headChars.length;j++){
+                if(tail.charAt(j) == headChar){
+                   next[i] = j;
+                   lastFind[(int)headChar] = j;
+                   break;
                 }
             }
         }
@@ -80,6 +80,7 @@ public class BurrowsWheeler {
         }
         else if(args[0].equals("+")){
             decode();
+          
         }
     }
 }
